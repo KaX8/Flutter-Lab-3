@@ -4,6 +4,7 @@ import 'package:lab_3_todo/ToDoBase.dart';
 import 'ToDoMain.dart';
 
 void main() {
+  print("object");
   runApp(const ToDoApp());
 }
 

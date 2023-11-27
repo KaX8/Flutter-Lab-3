@@ -8,16 +8,22 @@ class ToDoList extends StatefulWidget {
 }
 
 class _ToDoListState extends State<ToDoList> {
-  final Map<String, List<Map<String, bool>>> groupedEvents = {
-    '17 January': [{'Buy groceries': true}, {'Book doctor\'s appointment': true}, {'Call mom': true}],
+  Map<String, List<Map<String, bool>>> groupedEvents = {
+    '17 January': [{'Buy groceries': true}, {'Book doctor\'s appointment': false}, {'Call mom': true}],
     '18 January': [{'Prepare for move': true}],
-    '19 January': [{'Send back shoes': true}, {'Buy Bon Iver tickets': true}],
+    '19 January': [{'Send back shoes': false}, {'Buy Bon Iver tickets': true}],
   };
 
   @override
   Widget build(BuildContext context) {
-    Icon done = Icon(Icons.circle, size: 15.0, color: Color.fromRGBO(6, 187, 108, 1));
-    Icon unDone = Icon(Icons.circle_outlined, size: 15.0, color: Color.fromRGBO(66, 72, 82, 1));
+    Icon doneIcon = Icon(Icons.circle, size: 15.0, color: Color.fromRGBO(6, 187, 108, 1));
+    Icon unDoneIcon = Icon(Icons.circle_outlined, size: 15.0, color: Color.fromRGBO(66, 72, 82, 1));
+
+    void changeGroupedEvents(List<String> a){
+      groupedEvents.map((key, value) => {
+
+      });
+    }
 
     return Expanded(
       child: ClipRRect(
@@ -43,40 +49,30 @@ class _ToDoListState extends State<ToDoList> {
                     ),
                   ),
                   ...entry.value.map((task) {
-                    print(entry.key);
-                    print(task);
-                    
-                    task.entries.map((e) {
-                      return Container(
+
+                    String taskText = task.keys.first;
+                    bool done = bool.parse(task.values.first.toString());
+
+
+                    return ElevatedButton(
+                      onPressed: () => test([entry.key,task.keys.first]),
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(Color.fromRGBO(36,36,51, 1)),
+                      ),
+                      child: Container(
                         padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
                         child: Row(
                           children: [
-                            e.value ? done : unDone,
+                            done ? doneIcon : unDoneIcon,
                             SizedBox(width: 10.0),
                             Text(
-                              e.key,
+                              task.keys.first,
                               style: TextStyle(
                                 color: Color.fromRGBO(119, 132, 150, 1),
                               ),
                             ),
                           ],
                         ),
-                      );
-                    }).toList();
-
-                    return Container(
-                      padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                      child: Row(
-                        children: [
-                          unDone,
-                          SizedBox(width: 10.0),
-                          Text(
-                            "task.key",
-                            style: TextStyle(
-                              color: Color.fromRGBO(119, 132, 150, 1),
-                            ),
-                          ),
-                        ],
                       ),
                     );
                   }).toList(),
