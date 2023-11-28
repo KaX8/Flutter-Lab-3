@@ -2,10 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lab_3_todo/ToDoBase.dart';
 import 'ToDoMain.dart';
+import 'ParseEvents.dart';
 
-void main() {
-  print("object");
+Future<void> main() async {
+
+
   runApp(const ToDoApp());
+
+  String a = await ParseEvents.readData();
+
 }
 
 class ToDoApp extends StatelessWidget {
