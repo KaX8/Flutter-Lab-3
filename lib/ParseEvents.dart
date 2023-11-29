@@ -4,7 +4,7 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 
 class ParseEvents {
-  static Future<String> readData() async {
+  static Future<String> readEvents() async {
     String data = "";
     try {
       Directory appDocDir = await getApplicationDocumentsDirectory();
@@ -13,6 +13,7 @@ class ParseEvents {
       File f = File(filePath);
 
       data = await f.readAsString();
+      // await Future.delayed(const Duration(seconds: 5));
 
     } catch (e) {
       print(e);
@@ -21,7 +22,7 @@ class ParseEvents {
     return data;
   }
 
-  static Future<void> writeDataToFile(String data) async {
+  static Future<void> writeEventsToFile(String data) async {
     try {
       Directory appDocDir = await getApplicationDocumentsDirectory();
       String filePath = '${appDocDir.path}/events.txt';

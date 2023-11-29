@@ -4,11 +4,19 @@ import 'package:lab_3_todo/ToDoList.dart';
 
 class ToDoMain extends StatefulWidget {
 
+  final Function(String) changeTitle;
+  const ToDoMain ({super.key, required this.changeTitle});
+
+
+
   @override
-  State<ToDoMain> createState() => _ToDoMainState();
+  State<ToDoMain> createState() => _ToDoMainState(changeTitle);
 }
 
 class _ToDoMainState extends State<ToDoMain> {
+  final Function(String) changeTitle;
+  _ToDoMainState (this.changeTitle);
+
 
   String title = "Lists";
   List<List> blocks = [
@@ -19,11 +27,6 @@ class _ToDoMainState extends State<ToDoMain> {
   ];
   bool isMain = true;
 
-  void changeTitle(String newTitle) {
-    setState(() {
-      title = newTitle;
-    });
-  }
 
 
   @override
@@ -62,8 +65,9 @@ class _ToDoMainState extends State<ToDoMain> {
           ],
           elevation: 0,
         ),
-        // createLists(blocks, changeTitle),
+        createLists(blocks, changeTitle),
         ToDoList(),
+
       ],
     );
   }
