@@ -38,7 +38,7 @@ class _ToDoBaseState extends State<ToDoBase> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         title: AnimatedSwitcher(
-          duration: Duration(milliseconds: 100), // Продолжительность анимации
+          duration: Duration(milliseconds: 10000), // Продолжительность анимации
           child: Text(
             title,
             key: ValueKey<String>(title),
