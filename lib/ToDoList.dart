@@ -13,12 +13,10 @@ class ToDoList extends StatefulWidget {
   State<ToDoList> createState() {
     // late Future<String> test;
     return _ToDoListState();
-
-    // return _ToDoListState();
   }
 }
 
-class _ToDoListState extends State<ToDoList> {
+class _ToDoListState extends State<ToDoList> with WidgetsBindingObserver {
   late Future<String> json;
   Map<String, List<Map<String, bool>>> groupedEvents = {};
 
@@ -28,9 +26,20 @@ class _ToDoListState extends State<ToDoList> {
     json = ParseEvents.readEvents();
   }
 
+  @override
+  void deactivate() {
+    super.deactivate();
+    print("deactivate");
+    ParseEvents.writeEventsToFile(jsonEncode(groupedEvents));
+  }
 
+  @override
+  void dispose() {
+    ParseEvents.writeEventsToFile(jsonEncode(groupedEvents));
+    super.dispose();
+    print("dispose");
 
-
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,15 +50,13 @@ class _ToDoListState extends State<ToDoList> {
     void changeGroupedEvents(List<String> a){
 
       setState(() {
-
         groupedEvents[a[0]]?.forEach((element) {
           if (element.keys.single == a[1]){
             element.update(a[1], (value) => value ? false : true);
           }
         });
-        ParseEvents.writeEventsToFile(jsonEncode(groupedEvents));
-
       });
+      ParseEvents.writeEventsToFile(jsonEncode(groupedEvents));
     }
 
     return FutureBuilder(
@@ -136,7 +143,7 @@ class _ToDoListState extends State<ToDoList> {
 }
 
 Map<String, List<Map<String, bool>>> createMap({String json = ""}){
-  // Твой исходный Map
+
   Map<String, List<Map<String, bool>>> test = {
     '17 Января': [{'Купить морковь': true}, {'Сходить к доктору, 17:40': false}, {'Позвонить маме...': true}],
     '18 Января': [{'Пора переехать': true}],
