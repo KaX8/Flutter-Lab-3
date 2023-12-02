@@ -47,6 +47,7 @@ class _ToDoMainState extends State<ToDoMain> {
           }else if(snapshot.hasError){
             return Text("Ошибка ${snapshot.error}");
           }else{
+
             return Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -82,7 +83,7 @@ class _ToDoMainState extends State<ToDoMain> {
                 //   elevation: 0,
                 // ),
                 createLists(blocks, changeTitle),
-                // ToDoList(),
+                ToDoList(json: snapshot.data),
 
               ],
             );
