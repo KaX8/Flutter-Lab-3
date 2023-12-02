@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -6,18 +8,18 @@ import 'package:lab_3_todo/ToDoList.dart';
 
 class ToDoMain extends StatefulWidget {
 
-  final Function(String) changeTitle;
-  const ToDoMain ({super.key, required this.changeTitle});
+  final Function(String, Widget) changePage;
+  const ToDoMain ({super.key, required this.changePage});
 
 
 
   @override
-  State<ToDoMain> createState() => _ToDoMainState(changeTitle);
+  State<ToDoMain> createState() => _ToDoMainState(changePage);
 }
 
 class _ToDoMainState extends State<ToDoMain> {
-  final Function(String) changeTitle;
-  _ToDoMainState (this.changeTitle);
+  final Function(String, Widget) changePage;
+  _ToDoMainState (this.changePage);
   late Future<String> json;
 
   @override
@@ -49,7 +51,8 @@ class _ToDoMainState extends State<ToDoMain> {
               children: [
                 createLists(
                     genBlocks(ToDoList.createMap(json: snapshot.data)),
-                    changeTitle
+                    changePage,
+                    snapshot.data
                 ),
                 // ToDoList(json: snapshot.data),
               ],
@@ -60,7 +63,7 @@ class _ToDoMainState extends State<ToDoMain> {
   }
 }
 
-Expanded createLists(List blocks, Function(String) changeTitle){
+Expanded createLists(List blocks, Function(String, Widget) changePage, String json){
   return Expanded(
 
     child: GridView.count(
@@ -69,23 +72,23 @@ Expanded createLists(List blocks, Function(String) changeTitle){
       crossAxisSpacing: 6,
       mainAxisSpacing: 12,
 
-      children: getAllLists(blocks, changeTitle),
+      children: getAllLists(blocks, changePage, json),
     ),
 
   );
 }
 
-List<Widget> getAllLists(List arr, Function(String) changeTitle){
+List<Widget> getAllLists(List arr, Function(String, Widget) changePage, String json){
   List<Widget> lists = [];
 
   arr.forEach((e) {
-    lists.add(getList(e, changeTitle));
+    lists.add(getList(e, changePage, json));
   });
 
   return lists;
 }
 
-Widget getList(List arr, Function(String) changeTitle){
+Widget getList(List arr, Function(String, Widget) changePage, String json){
   int type = arr[0];
   int num = arr[1];
   String descr = arr[2];
@@ -93,7 +96,7 @@ Widget getList(List arr, Function(String) changeTitle){
   return ClipRRect(
     borderRadius: BorderRadius.circular(10),
     child: GestureDetector(
-      onTap: () => changeTitle(descr),
+      onTap: () => changePage(descr, ToDoList(json: json, type: descr,)),
       child: Container(
           color: type == 0 ? Color.fromRGBO(6, 187, 108, 1) :
           Color.fromRGBO(36,36,51, 1),
@@ -130,7 +133,7 @@ Widget getList(List arr, Function(String) changeTitle){
   );
 }
 
-List<List> genBlocks(Map<String, List<Map<String, bool>>> map){
+List<List> genBlocks(Map map){
   return [
     getTodayBlock(map),
     getWeekBlock(map),
@@ -140,28 +143,25 @@ List<List> genBlocks(Map<String, List<Map<String, bool>>> map){
 }
 
 List getTodayBlock(Map map){
-  // DateTime now = DateTime.now();
-  DateTime now = DateTime(2023,1,17);
-  DateFormat df = DateFormat("y-MM-D");
-
+  DateTime now = DateTime.now();
+  DateFormat df = DateFormat("y-MM-dd");
 
   return [
     0,
-    map[df.format(now)]?.length,
+    map[df.format(now)]?.length ?? 0,
     "Today"
   ];
 }
 
 List getWeekBlock(Map map){
-  // DateTime now = DateTime.now();
-  DateTime now = DateTime(2023,1,17);
-  DateFormat df = DateFormat("y-MM-D");
+  DateTime now = DateTime.now();
+  DateFormat df = DateFormat("y-MM-dd");
   int countWeekTasks = 0;
 
   for (int i = 0; i < 7; i++){
     DateTime curr = now.add(Duration(days: i));
     if (map[df.format(curr)]?.length != null) {
-      countWeekTasks += map[df.format(curr)].length as int;
+      countWeekTasks += 1;
     }
   }
   return [
@@ -176,7 +176,7 @@ List getAllTasksBlock(Map map){
 
   map.forEach((key, value) {
     if (map[key]?.length != null) {
-      countAllTasks += map[key].length as int;
+      countAllTasks += map[key]?.length as int;
     }
   });
 
