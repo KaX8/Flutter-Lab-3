@@ -135,7 +135,6 @@ class _ToDoListState extends State<ToDoList> with WidgetsBindingObserver {
         );
         }
       },
-
     );
   }
 

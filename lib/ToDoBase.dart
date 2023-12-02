@@ -14,7 +14,7 @@ class _ToDoBaseState extends State<ToDoBase> {
 
   late Widget currentScreen;
 
-  String title = "test";
+  String title = "Lists";
 
   void navigateToScreen(Widget screen) {
     setState(() {
@@ -37,8 +37,9 @@ class _ToDoBaseState extends State<ToDoBase> {
       backgroundColor: Color.fromRGBO(26,26,38,1),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
         title: AnimatedSwitcher(
-          duration: Duration(milliseconds: 10000), // Продолжительность анимации
+          duration: Duration(milliseconds: 100), // Продолжительность анимации
           child: Text(
             title,
             key: ValueKey<String>(title),

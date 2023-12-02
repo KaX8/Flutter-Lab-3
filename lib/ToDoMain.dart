@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:lab_3_todo/ParseEvents.dart';
 import 'package:lab_3_todo/ToDoList.dart';
 
 class ToDoMain extends StatefulWidget {
@@ -16,6 +17,13 @@ class ToDoMain extends StatefulWidget {
 class _ToDoMainState extends State<ToDoMain> {
   final Function(String) changeTitle;
   _ToDoMainState (this.changeTitle);
+  late Future<String> json;
+
+  @override
+  void initState() {
+    super.initState();
+    json = ParseEvents.readEvents();
+  }
 
 
   String title = "Lists";
@@ -31,44 +39,55 @@ class _ToDoMainState extends State<ToDoMain> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        AppBar(
-          backgroundColor: Colors.transparent,
-          title: AnimatedSwitcher(
-            duration: Duration(milliseconds: 100), // Продолжительность анимации
-            child: Text(
-              title,
-              key: ValueKey<String>(title),
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          actions: [
-            TextButton(
-              style: const ButtonStyle(
-                overlayColor: MaterialStatePropertyAll(Color.fromRGBO(6, 187, 108, .3)),
-              ),
-              onPressed: () {
-                print("add");
-              },
-              child: const Text(
-                'ADD',
-                style: TextStyle(
-                  color: Color.fromRGBO(119, 132, 150, 1),
-                ),
-              ),
-            ),
-          ],
-          elevation: 0,
-        ),
-        createLists(blocks, changeTitle),
-        ToDoList(),
+    return FutureBuilder(
+        future: json,
+        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting){
+            return const CircularProgressIndicator();
+          }else if(snapshot.hasError){
+            return Text("Ошибка ${snapshot.error}");
+          }else{
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // AppBar(
+                //   backgroundColor: Colors.transparent,
+                //   title: AnimatedSwitcher(
+                //     duration: Duration(milliseconds: 100), // Продолжительность анимации
+                //     child: Text(
+                //       title,
+                //       key: ValueKey<String>(title),
+                //       style: TextStyle(
+                //         color: Colors.white,
+                //         fontWeight: FontWeight.bold,
+                //       ),
+                //     ),
+                //   ),
+                //   actions: [
+                //     TextButton(
+                //       style: const ButtonStyle(
+                //         overlayColor: MaterialStatePropertyAll(Color.fromRGBO(6, 187, 108, .3)),
+                //       ),
+                //       onPressed: () {
+                //         print("add");
+                //       },
+                //       child: const Text(
+                //         'ADD',
+                //         style: TextStyle(
+                //           color: Color.fromRGBO(119, 132, 150, 1),
+                //         ),
+                //       ),
+                //     ),
+                //   ],
+                //   elevation: 0,
+                // ),
+                createLists(blocks, changeTitle),
+                // ToDoList(),
 
-      ],
+              ],
+            );
+          }
+        }
     );
   }
 }
