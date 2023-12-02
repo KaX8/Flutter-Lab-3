@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:lab_3_todo/ParseEvents.dart';
 import 'package:lab_3_todo/ToDoList.dart';
 
@@ -27,12 +28,7 @@ class _ToDoMainState extends State<ToDoMain> {
 
 
   String title = "Lists";
-  List<List> blocks = [
-    [0, 8, "Today"],
-    [1, 15, "This week"],
-    [1, 36, "All"],
-    [0, 2, "Completed"],
-  ];
+
   bool isMain = true;
 
 
@@ -51,40 +47,11 @@ class _ToDoMainState extends State<ToDoMain> {
             return Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // AppBar(
-                //   backgroundColor: Colors.transparent,
-                //   title: AnimatedSwitcher(
-                //     duration: Duration(milliseconds: 100), // Продолжительность анимации
-                //     child: Text(
-                //       title,
-                //       key: ValueKey<String>(title),
-                //       style: TextStyle(
-                //         color: Colors.white,
-                //         fontWeight: FontWeight.bold,
-                //       ),
-                //     ),
-                //   ),
-                //   actions: [
-                //     TextButton(
-                //       style: const ButtonStyle(
-                //         overlayColor: MaterialStatePropertyAll(Color.fromRGBO(6, 187, 108, .3)),
-                //       ),
-                //       onPressed: () {
-                //         print("add");
-                //       },
-                //       child: const Text(
-                //         'ADD',
-                //         style: TextStyle(
-                //           color: Color.fromRGBO(119, 132, 150, 1),
-                //         ),
-                //       ),
-                //     ),
-                //   ],
-                //   elevation: 0,
-                // ),
-                createLists(blocks, changeTitle),
-                ToDoList(json: snapshot.data),
-
+                createLists(
+                    genBlocks(ToDoList.createMap(json: snapshot.data)),
+                    changeTitle
+                ),
+                // ToDoList(json: snapshot.data),
               ],
             );
           }
@@ -95,6 +62,7 @@ class _ToDoMainState extends State<ToDoMain> {
 
 Expanded createLists(List blocks, Function(String) changeTitle){
   return Expanded(
+
     child: GridView.count(
       crossAxisCount: 2,
       childAspectRatio: 1.6,
@@ -160,4 +128,71 @@ Widget getList(List arr, Function(String) changeTitle){
       ),
     ),
   );
+}
+
+List<List> genBlocks(Map<String, List<Map<String, bool>>> map){
+  return [
+    getTodayBlock(map),
+    getWeekBlock(map),
+    getAllTasksBlock(map),
+    getCompletedBlock(map),
+  ];
+}
+
+List getTodayBlock(Map map){
+  // DateTime now = DateTime.now();
+  DateTime now = DateTime(2023,1,17);
+  DateFormat df = DateFormat("y-MM-D");
+
+
+  return [
+    0,
+    map[df.format(now)]?.length,
+    "Today"
+  ];
+}
+
+List getWeekBlock(Map map){
+  // DateTime now = DateTime.now();
+  DateTime now = DateTime(2023,1,17);
+  DateFormat df = DateFormat("y-MM-D");
+  int countWeekTasks = 0;
+
+  for (int i = 0; i < 7; i++){
+    DateTime curr = now.add(Duration(days: i));
+    if (map[df.format(curr)]?.length != null) {
+      countWeekTasks += map[df.format(curr)].length as int;
+    }
+  }
+  return [
+    1,
+    countWeekTasks,
+    "This week"
+  ];
+}
+
+List getAllTasksBlock(Map map){
+  int countAllTasks = 0;
+
+  map.forEach((key, value) {
+    if (map[key]?.length != null) {
+      countAllTasks += map[key].length as int;
+    }
+  });
+
+  return [
+    1,
+    countAllTasks,
+    "All"
+  ];
+}
+
+List getCompletedBlock(Map map){
+
+  int countCompleted = RegExp(r'true').allMatches(map.toString()).length;
+  return [
+    0,
+    countCompleted,
+    "Completed"
+  ];
 }

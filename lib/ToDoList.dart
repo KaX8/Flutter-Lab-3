@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'dart:convert';
 
 import 'package:lab_3_todo/ParseEvents.dart';
@@ -7,19 +8,54 @@ class ToDoList extends StatefulWidget {
   late String json;
   ToDoList({super.key, required this.json});
 
+  static Map<String, List<Map<String, bool>>> createMap({String json = ""}){
 
+    Map<String, List<Map<String, bool>>> test = {
+      '2023-01-17': [{'Купить морковь': true}, {'Сходить к доктору, 17:40': false}, {'Позвонить маме...': true}],
+      '2023-01-18': [{'Пора переехать': true}],
+      '2023-01-19': [{'Отправть кроссовки обратно': false}, {'Купить билеты в Париж!!!': true}],
+      '2023-01-20': [{'Работать': false}],
+      '2023-01-21': [{'Работать': false}],
+    };
+    json = json.isEmpty ? jsonEncode(test) : json;
+
+    var decodedJson = jsonDecode(json);
+
+    // Преобразование в нужный тип
+    Map<String, List<Map<String, bool>>> decoded = decodedJson.map<String, List<Map<String, bool>>>( (key, value) {
+      String stringKey = key; // ДАТА
+      List list = value; // ЗАДАЧА:ФЛАГ
+      return MapEntry( // МАПАЕМ
+          stringKey, // ДАТА
+          list.map<Map<String, bool>>((item) {
+            // ЗАДАЧА:ФЛАГ
+            return Map<String, bool>.from(item as Map);
+          }).toList());
+    },
+    );
+
+    print(decoded);
+    return decoded;
+  }
 
   @override
-  State<ToDoList> createState() {
-    // late Future<String> test;
-    return _ToDoListState(json: json);
-  }
+  State<ToDoList> createState() => _ToDoListState(json: json);
 }
 
 class _ToDoListState extends State<ToDoList> with WidgetsBindingObserver {
   late String json;
   _ToDoListState ({required this.json});
 
+  Icon doneIcon = const Icon(
+      Icons.circle,
+      size: 18.0,
+      color: Color.fromRGBO(6, 187, 108, 1)
+  );
+  Icon unDoneIcon = const Icon(
+      Icons.circle_outlined,
+      size: 18.0,
+      color: Color.fromRGBO(66, 72, 82, 1)
+  );
   Map<String, List<Map<String, bool>>> groupedEvents = {};
 
   @override
@@ -39,13 +75,9 @@ class _ToDoListState extends State<ToDoList> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
 
-    groupedEvents = createMap(json: json);
-
-    Icon doneIcon = Icon(Icons.circle, size: 15.0, color: Color.fromRGBO(6, 187, 108, 1));
-    Icon unDoneIcon = Icon(Icons.circle_outlined, size: 15.0, color: Color.fromRGBO(66, 72, 82, 1));
+    groupedEvents = groupedEvents.isEmpty ? ToDoList.createMap(json: json) : groupedEvents;
 
     void changeGroupedEvents(List<String> a){
-
       setState(() {
         groupedEvents[a[0]]?.forEach((element) {
           if (element.keys.single == a[1]){
@@ -57,12 +89,12 @@ class _ToDoListState extends State<ToDoList> with WidgetsBindingObserver {
     }
 
     return Expanded(
+      flex: 2,
       child: ClipRRect(
         borderRadius: BorderRadius.all(Radius.circular(10)),
         child: Container(
           color: Color.fromRGBO(36,36,51, 1),
           width: double.infinity,
-
           child: ListView(
             children: groupedEvents.entries.map((entry) {
               return Column(
@@ -71,7 +103,7 @@ class _ToDoListState extends State<ToDoList> with WidgetsBindingObserver {
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
                     child: Text(
-                      entry.key,
+                      dateFormatting(entry.key),
                       style: TextStyle(
                         color: Color.fromRGBO(66, 72, 82, 1),
                         fontWeight: FontWeight.bold,
@@ -83,7 +115,6 @@ class _ToDoListState extends State<ToDoList> with WidgetsBindingObserver {
 
                     String taskText = task.keys.first;
                     bool done = bool.parse(task.values.first.toString());
-
 
                     return InkWell(
                       onTap: () => changeGroupedEvents([entry.key,task.keys.first]),
@@ -121,38 +152,18 @@ class _ToDoListState extends State<ToDoList> with WidgetsBindingObserver {
       ),
     );
   }
-
-
 }
 
-Map<String, List<Map<String, bool>>> createMap({String json = ""}){
+String dateFormatting(String s){
 
-  Map<String, List<Map<String, bool>>> test = {
-    '17 Января': [{'Купить морковь': true}, {'Сходить к доктору, 17:40': false}, {'Позвонить маме...': true}],
-    '18 Января': [{'Пора переехать': true}],
-    '19 Января': [{'Отправть кроссовки обратно': false}, {'Купить билеты в Париж!!!': true}],
-    '20 Января': [{'Работать': false}],
-    '21 Января': [{'Работать': false}],
-  };
-  json = json.isEmpty ? jsonEncode(test) : json;
+  DateTime dt = DateTime.parse(s);
+  // print(dt);
+  // print(dt.subtract(Duration(days: 7)));
 
-  var decodedJson = jsonDecode(json);
+  DateFormat df = DateFormat("d MMMM");
+  // print(df.format(dt));
 
-  // Преобразование в нужный тип
-  Map<String, List<Map<String, bool>>> decoded = decodedJson.map<String, List<Map<String, bool>>>( (key, value) {
-      String stringKey = key; // ДАТА
-      List list = value; // ЗАДАЧА:ФЛАГ
-      return MapEntry( // МАПАЕМ
-          stringKey, // ДАТА
-          list.map<Map<String, bool>>((item) {
-            // ЗАДАЧА:ФЛАГ
-            return Map<String, bool>.from(item as Map);
-          }).toList());
-    },
-  );
-
-  print(decoded);
-  return decoded;
+  return df.format(dt);
 }
 
 

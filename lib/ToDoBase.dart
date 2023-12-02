@@ -16,10 +16,10 @@ class _ToDoBaseState extends State<ToDoBase> {
 
   String title = "Lists";
 
-  void navigateToScreen(Widget screen) {
-    setState(() {
-      currentScreen = screen;
-    });
+  @override
+  void initState() {
+    super.initState();
+    currentScreen = ToDoMain(changeTitle: changeTitle);
   }
 
   void changeTitle(String newTitle) {
@@ -31,7 +31,7 @@ class _ToDoBaseState extends State<ToDoBase> {
   @override
   Widget build(BuildContext context) {
 
-    currentScreen = ToDoMain(changeTitle: changeTitle);
+
 
     return Scaffold(
       backgroundColor: Color.fromRGBO(26,26,38,1),
