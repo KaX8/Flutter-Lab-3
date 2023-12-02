@@ -220,6 +220,7 @@ defineSetByType(String type, Map<String, List<Map<String, bool>>> original){
       return filteredMap;
   }
   return map;
+  //тест
 }
 
 
