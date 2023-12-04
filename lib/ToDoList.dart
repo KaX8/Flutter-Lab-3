@@ -5,9 +5,8 @@ import 'dart:convert';
 import 'package:lab_3_todo/ParseEvents.dart';
 
 class ToDoList extends StatefulWidget {
-  late String json;
   late String type;
-  ToDoList({super.key, required this.json, required this.type});
+  ToDoList({super.key, required this.type});
 
   static Map<String, List<Map<String, bool>>> createMap({String json = ""}){
 
@@ -16,11 +15,13 @@ class ToDoList extends StatefulWidget {
       '2023-12-03': [{'Пора переехать': true}],
       '2023-12-04': [{'Отправть кроссовки обратно': false}, {'Купить билеты в Париж!!!': true}],
       '2023-12-05': [{'Работать': false}],
+      '2023-12-07': [{'Работать': false}],
       '2024-01-21': [{'Работать': false}],
       '2024-01-28': [{'Работать': false}],
       '2024-01-29': [{'Купить морковь': true}, {'Сходить к доктору, 17:40': false}, {'Позвонить маме...': true}],
       '2024-01-30': [{'Работать': false}],
     };
+
     json = json.isEmpty ? jsonEncode(test) : json;
 
     var decodedJson = jsonDecode(json);
@@ -40,17 +41,18 @@ class ToDoList extends StatefulWidget {
     );
 
     print(decoded);
+    // ParseEvents.writeEventsToFile(jsonEncode(test));
     return decoded;
   }
 
   @override
-  State<ToDoList> createState() => _ToDoListState(json: json, type: type);
+  State<ToDoList> createState() => _ToDoListState(type: type);
 }
 
 class _ToDoListState extends State<ToDoList>{
-  late String json;
+  late Future<String> json;
   late String type;
-  _ToDoListState ({required this.json, required this.type});
+  _ToDoListState ({required this.type});
 
   Icon doneIcon = const Icon(
       Icons.circle,
@@ -65,6 +67,12 @@ class _ToDoListState extends State<ToDoList>{
   Map<String, List<Map<String, bool>>> groupedEvents = {};
 
   @override
+  void initState() {
+    super.initState();
+    json = ParseEvents.readEvents();
+  }
+
+  @override
   void deactivate() {
     super.deactivate();
     print("deactivate");
@@ -75,102 +83,126 @@ class _ToDoListState extends State<ToDoList>{
     // ParseEvents.writeEventsToFile(jsonEncode(groupedEvents));
     super.dispose();
     print("dispose");
+  }
+
+  void changeGroupedEvents(List<String> a, {bool remove = false}){
+
+    setState(() {
+      if (!remove){
+        groupedEvents[a[0]]?.forEach((element) {
+          if (element.keys.single == a[1]){
+            element.update(a[1], (value) => value ? false : true);
+          }
+        });
+      }else{
+        groupedEvents[a[0]]?.removeWhere((element) => element.containsKey(a[1]));
+        if (groupedEvents[a[0]]!.isEmpty) {
+          groupedEvents.remove(a[0]);
+        }
+      }
+
+      ParseEvents.writeEventsToFile(jsonEncode(groupedEvents));
+    });
 
   }
 
   @override
   Widget build(BuildContext context) {
 
-    groupedEvents.isEmpty ? print("trueeeeeeeeeeeeee") : print("falseeeeeeeeeeeeeee");
-    groupedEvents = groupedEvents.isEmpty ?
-    ToDoList.createMap(json: json) : groupedEvents;
-    groupedEvents.isEmpty ? print("trueeeeeeeeeeeeee") : print("falseeeeeeeeeeeeeee");
+    return FutureBuilder(
+        future: json,
+        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot){
+          if(snapshot.connectionState == ConnectionState.waiting){
+            return const CircularProgressIndicator();
+          }else if(snapshot.hasError){
+            return Text("Ошибка!!! ${snapshot.error}");
+          }else{
+            groupedEvents.isEmpty ? print("trueeeeeeeeeeeeee") : print("falseeeeeeeeeeeeeee");
+            groupedEvents = groupedEvents.isEmpty ?
+            ToDoList.createMap(json: snapshot.data) : groupedEvents;
+            groupedEvents.isEmpty ? print("trueeeeeeeeeeeeee") : print("falseeeeeeeeeeeeeee");
+            print(groupedEvents);
+            Map<String, List<Map<String, bool>>> toView = defineSetByType(type, groupedEvents);
 
-    void changeGroupedEvents(List<String> a){
+            return Column(
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.all(Radius.circular(10)),
+                    child: Container(
+                      color: const Color.fromRGBO(36,36,51, 1),
+                      width: double.infinity,
+                      child: ListView(
+                        children: toView.entries.map((entry) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                                child: Text(
+                                  dateFormatting(entry.key),
+                                  style: const TextStyle(
+                                    color: Color.fromRGBO(66, 72, 82, 1),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                  ),
+                                ),
+                              ),
+                              ...entry.value.map((task) {
 
-      setState(() {
-        if (type != "Completed"){
-          groupedEvents[a[0]]?.forEach((element) {
-            if (element.keys.single == a[1]){
-              element.update(a[1], (value) => value ? false : true);
-            }
-          });
-        }
-        ParseEvents.writeEventsToFile(jsonEncode(groupedEvents));
-      });
+                                bool done = bool.parse(task.values.first.toString());
 
-    }
+                                return InkWell(
+                                  onTap: () => changeGroupedEvents(
+                                      [entry.key,task.keys.first]
+                                  ),
+                                  onLongPress: () => changeGroupedEvents(
+                                      [entry.key,task.keys.first], remove: true
+                                  ),
+                                  splashColor: Colors.red,
+                                  focusColor: Colors.red,
+                                  highlightColor: Colors.transparent,
+                                  radius: 1,
 
-
-    Map<String, List<Map<String, bool>>> toView = defineSetByType(type, groupedEvents);
-    return Column(
-      children: [
-        Expanded(
-          flex: 1,
-          child: ClipRRect(
-            borderRadius: const BorderRadius.all(Radius.circular(10)),
-            child: Container(
-              color: const Color.fromRGBO(36,36,51, 1),
-              width: double.infinity,
-              child: ListView(
-                children: toView.entries.map((entry) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                        child: Text(
-                          dateFormatting(entry.key),
-                          style: const TextStyle(
-                            color: Color.fromRGBO(66, 72, 82, 1),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
-                        ),
-                      ),
-                      ...entry.value.map((task) {
-
-                        bool done = bool.parse(task.values.first.toString());
-
-                        return InkWell(
-                          onTap: () => changeGroupedEvents([entry.key,task.keys.first]),
-                          splashColor: Colors.red,
-                          focusColor: Colors.red,
-                          hoverColor: Colors.red,
-                          highlightColor: Colors.red,
-                          radius: 1,
-
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                              child: Row(
-                                children: [
-                                  done ? doneIcon : unDoneIcon,
-                                  const SizedBox(width: 10.0),
-                                  Text(
-                                    task.keys.first,
-                                    style: const TextStyle(
-                                      color: Color.fromRGBO(119, 132, 150, 1),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                                      child: Row(
+                                        children: [
+                                          done ? doneIcon : unDoneIcon,
+                                          const SizedBox(width: 10.0),
+                                          Flexible(
+                                            child: Text(
+                                              task.keys.first,
+                                              style: const TextStyle(
+                                                color: Color.fromRGBO(119, 132, 150, 1),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ],
-                  );
-                }).toList(),
-              ),
-            ),
-          ),
-        ),
-      ],
+                                );
+                              }).toList(),
+                            ],
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          }
+        }
     );
   }
 }
+
+
 
 String dateFormatting(String s){
 
@@ -198,7 +230,9 @@ defineSetByType(String type, Map<String, List<Map<String, bool>>> original){
 
     case "This week":
       DateTime now = DateTime.now();
-      DateTime startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+      DateTime startOfWeek = now.subtract(Duration(days: now.weekday));
+      print(startOfWeek);
+      print(startOfWeek.add(const Duration(days: 6)));
 
       map.removeWhere((key, value) {
         DateTime dateKey = DateFormat("y-MM-dd").parse(key);
@@ -222,8 +256,5 @@ defineSetByType(String type, Map<String, List<Map<String, bool>>> original){
   return map;
   //тест
 }
-
-
-
 
 

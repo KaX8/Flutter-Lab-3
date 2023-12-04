@@ -28,15 +28,9 @@ class _ToDoMainState extends State<ToDoMain> {
     json = ParseEvents.readEvents();
   }
 
-
-  String title = "Lists";
-
-  bool isMain = true;
-
-
-
   @override
   Widget build(BuildContext context) {
+
     return FutureBuilder(
         future: json,
         builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
@@ -96,7 +90,7 @@ Widget getList(List arr, Function(String, Widget) changePage, String json){
   return ClipRRect(
     borderRadius: BorderRadius.circular(10),
     child: GestureDetector(
-      onTap: () => changePage(descr, ToDoList(json: json, type: descr,)),
+      onTap: () => changePage(descr, ToDoList(type: descr)),
       child: Container(
           color: type == 0 ? Color.fromRGBO(6, 187, 108, 1) :
           Color.fromRGBO(36,36,51, 1),
