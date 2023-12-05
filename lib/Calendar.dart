@@ -56,7 +56,6 @@ class _CalendarState extends State<Calendar> {
               _selectedDate = day;
             }),
             child: Container(
-
               child: Center(
                 child: Text(
                   DateFormat('d').format(day),
@@ -88,7 +87,8 @@ class _CalendarState extends State<Calendar> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.all(8),
+      color: Color.fromRGBO(36,36,51, 1),
+      padding: EdgeInsets.symmetric(horizontal: 30),
       child: Column(
         children: <Widget>[
           Row(
@@ -102,7 +102,7 @@ class _CalendarState extends State<Calendar> {
                   });
                 },
               ),
-              Text(DateFormat('MMMM').format(_currentDate)),
+              Text(DateFormat('MMMM y').format(_currentDate), style: TextStyle(color: Colors.white),),
               IconButton(
                 icon: Icon(Icons.chevron_right),
                 onPressed: () {

@@ -77,26 +77,27 @@ class _ToDoAddState extends State<ToDoAdd> {
             return Text("${snapshot.error}");
           }else{
             groupedEvents = ToDoList.createMap(json: snapshot.data);
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Calendar(),
-                TextField(
-                  controller: _taskTextController,
-                  style: TextStyle(
-                      color: Colors.white
+            return Container(
+              child: Column(
+                children: [
+                  Calendar(),
+                  TextField(
+                    controller: _taskTextController,
+                    style: TextStyle(
+                        color: Colors.white
+                    ),
                   ),
-                ),
-                InkWell(
-                  onTap: () => addNewTask(_dateController.text, _taskTextController.text),
-                  child: Container(
-                    color: Colors.greenAccent,
-                    child: Text("Добавить", style: TextStyle(
-                        color: Colors.black
-                    ),),
-                  ),
-                )
-              ],
+                  InkWell(
+                    onTap: () => addNewTask(_dateController.text, _taskTextController.text),
+                    child: Container(
+                      color: Colors.greenAccent,
+                      child: Text("Добавить", style: TextStyle(
+                          color: Colors.black
+                      ),),
+                    ),
+                  )
+                ],
+              ),
             );
           }
         }
