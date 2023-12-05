@@ -25,6 +25,7 @@ class _ToDoBaseState extends State<ToDoBase> {
     super.initState();
     currentScreen = ToDoMain(changePage: changePage);
     pages.add(["Lists", currentScreen]);
+
   }
 
   void changePage(String newTitle, Widget screen, {bool addToPages = true}) {
@@ -56,9 +57,7 @@ class _ToDoBaseState extends State<ToDoBase> {
     return PopScope(
       canPop: canPop,
       onPopInvoked: (canPop){
-        pages.removeAt(pages.length-1);
-
-        changePage(pages.last[0], pages.last[1], addToPages: false);
+        changePageBack();
       },
       child: Scaffold(
         backgroundColor: Color.fromRGBO(26,26,38,1),
@@ -95,14 +94,15 @@ class _ToDoBaseState extends State<ToDoBase> {
           ],
           elevation: 0,
         ),
-        body: SafeArea(
-          child: GestureDetector(
-            onHorizontalDragEnd: (DragEndDetails details){
-              if (details.primaryVelocity! > 1500 && pages.length > 1) {
-                changePageBack();
-              }
-              print("swipe");
-            },
+        body: GestureDetector(
+          onHorizontalDragEnd: (DragEndDetails details){
+            if (details.primaryVelocity! > 1500 && pages.length > 1) {
+              changePageBack();
+            }
+            print("swipe");
+            print(details.primaryVelocity);
+          },
+          child: SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
               child: AnimatedSwitcher(

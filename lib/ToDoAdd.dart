@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:lab_3_todo/Calendar.dart';
 import 'package:lab_3_todo/ParseEvents.dart';
 import 'package:lab_3_todo/ToDoBase.dart';
 
@@ -79,12 +80,7 @@ class _ToDoAddState extends State<ToDoAdd> {
             return Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                TextField(
-                  controller: _dateController,
-                  style: TextStyle(
-                      color: Colors.white
-                  ),
-                ),
+                Calendar(),
                 TextField(
                   controller: _taskTextController,
                   style: TextStyle(
