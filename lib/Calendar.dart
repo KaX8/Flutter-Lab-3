@@ -24,29 +24,31 @@ class _CalendarState extends State<Calendar> {
 
   List<Widget> _buildDaysName() {
     return ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
-        .map((day) => Expanded(child: Center(child: Text(day))))
+        .map((day) => Expanded(child: Center(child: Text(day, style: TextStyle(color: Colors.white),))))
         .toList();
   }
 
   List<Widget> _buildCalendarDays(DateTime date) {
     List<Widget> dayWidgets = [];
     DateTime firstDayOfMonth = DateTime(date.year, date.month, 1);
+
     int firstWeekdayOfMonth = firstDayOfMonth.weekday % 7;
     DateTime lastDayOfLastMonth = firstDayOfMonth.subtract(Duration(days: firstWeekdayOfMonth));
+
+
+    BoxDecoration decoration = BoxDecoration();
+    TextStyle textStyle = TextStyle(color: Colors.blueGrey);
 
     for (var i = 0; i < 35; i++) {
       DateTime day = lastDayOfLastMonth.add(Duration(days: i));
 
-      BoxDecoration decoration;
-      TextStyle textStyle;
-
-      if (day.month != _currentDate.month) {
+      if (day.month == _currentDate.month) {
         textStyle = TextStyle(color: Colors.white);
       } else if (day.isAtSameMomentAs(_selectedDate)) {
         decoration = BoxDecoration(color: Colors.blue, shape: BoxShape.circle);
         textStyle = TextStyle(color: Colors.white);
-      } else if (day.isAtSameMomentAs(_currentDate)) {
-        decoration = BoxDecoration(border: Border.all(color: Colors.blue));
+      }else{
+
       }
 
       dayWidgets.add(
@@ -54,12 +56,14 @@ class _CalendarState extends State<Calendar> {
           child: GestureDetector(
             onTap: () => setState(() {
               _selectedDate = day;
+              print("CLICKED TO $day");
             }),
             child: Container(
+              decoration: decoration,
               child: Center(
                 child: Text(
                   DateFormat('d').format(day),
-                  style: TextStyle(color: Colors.red),
+                  style: textStyle,
                 ),
               ),
             ),

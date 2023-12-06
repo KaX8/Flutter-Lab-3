@@ -150,17 +150,30 @@ List getTodayBlock(Map map){
 List getWeekBlock(Map map){
   DateTime now = DateTime.now();
   DateFormat df = DateFormat("y-MM-dd");
-  int countWeekTasks = 0;
+  now = DateTime.parse(df.format(now));
 
-  for (int i = 0; i < 7; i++){
-    DateTime curr = now.add(Duration(days: i));
-    if (map[df.format(curr)]?.length != null) {
-      countWeekTasks += 1;
-    }
-  }
+  DateTime startOfWeek = now.subtract(Duration(days: now.weekday-1));
+  
+  DateTime endOfWeek = startOfWeek.add(const Duration(days: 6));
+
+  int countTasks = 0;
+
+
+    map.forEach((key, value) {
+      DateTime dateKey = DateFormat("y-MM-dd").parse(key);
+      bool isAfterOrSame = dateKey.isAfter(startOfWeek) ||
+          dateKey.isAtSameMomentAs(startOfWeek);
+      bool isBefore = dateKey.isBefore(endOfWeek);
+
+      if (isAfterOrSame &&  isBefore){
+        countTasks += map[key]?.length as int;
+      }
+    });
+
+
   return [
     1,
-    countWeekTasks,
+    countTasks,
     "This week"
   ];
 }
