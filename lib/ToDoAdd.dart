@@ -27,13 +27,19 @@ class _ToDoAddState extends State<ToDoAdd> {
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _taskTextController = TextEditingController();
 
+  late String date = "blahblahblah";
+
   @override
   void initState() {
     super.initState();
     json = ParseEvents.readEvents();
   }
 
-  void addNewTask(String date, String text){
+  void setNewDate(String d){
+    date = d;
+  }
+
+  void addNewTask(String text){
     // Проверяем, существует ли уже список задач для данной даты
     if (!groupedEvents.containsKey(date)) {
       // Если нет, создаем новый список
@@ -80,7 +86,7 @@ class _ToDoAddState extends State<ToDoAdd> {
             return Container(
               child: Column(
                 children: [
-                  Calendar(),
+                  Calendar(setNewDate: setNewDate),
                   TextField(
                     controller: _taskTextController,
                     style: TextStyle(
@@ -88,7 +94,7 @@ class _ToDoAddState extends State<ToDoAdd> {
                     ),
                   ),
                   InkWell(
-                    onTap: () => addNewTask(_dateController.text, _taskTextController.text),
+                    onTap: () => addNewTask(_taskTextController.text),
                     child: Container(
                       color: Colors.greenAccent,
                       child: Text("Добавить", style: TextStyle(

@@ -5,15 +5,19 @@ import 'package:lab_3_todo/ToDoList.dart';
 import 'package:lab_3_todo/ToDoMain.dart';
 
 class Calendar extends StatefulWidget {
-  const Calendar({super.key});
-
+  final Function(String) setNewDate;
+  const Calendar({super.key, required Function(String) this.setNewDate});
 
   @override
-  State<Calendar> createState() => _CalendarState();
+  State<Calendar> createState() => _CalendarState(setNewDate : setNewDate);
 }
 
 class _CalendarState extends State<Calendar> {
-  DateTime _currentDate = DateTime.now();
+  final Function(String) setNewDate;
+  _CalendarState ({required this.setNewDate});
+
+  DateTime _currentDate = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+  
   late DateTime _selectedDate;
 
   @override
@@ -35,22 +39,21 @@ class _CalendarState extends State<Calendar> {
     int firstWeekdayOfMonth = firstDayOfMonth.weekday % 7;
     DateTime lastDayOfLastMonth = firstDayOfMonth.subtract(Duration(days: firstWeekdayOfMonth));
 
-
-    BoxDecoration decoration = BoxDecoration();
-    TextStyle textStyle = TextStyle(color: Colors.blueGrey);
-
     for (var i = 0; i < 35; i++) {
       DateTime day = lastDayOfLastMonth.add(Duration(days: i));
 
-      if (day.month == _currentDate.month) {
-        textStyle = TextStyle(color: Colors.white);
-      } else if (day.isAtSameMomentAs(_selectedDate)) {
+      BoxDecoration decoration = BoxDecoration();
+      TextStyle textStyle = TextStyle(color: Colors.blueGrey);
+
+      if (day.isAtSameMomentAs(_selectedDate)) {
+        DateFormat df = DateFormat("y-MM-dd");
+        setNewDate(df.format(day));
         decoration = BoxDecoration(color: Colors.blue, shape: BoxShape.circle);
         textStyle = TextStyle(color: Colors.white);
-      }else{
-
+      }else if (day.month == _currentDate.month) {
+        textStyle = TextStyle(color: Colors.white);
       }
-
+        //s
       dayWidgets.add(
         Expanded(
           child: GestureDetector(
